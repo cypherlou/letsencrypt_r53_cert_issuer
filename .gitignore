@@ -1,0 +1,5 @@
+*.*~
+#*.*#
+.aws_config
+__pycache__
+env/
