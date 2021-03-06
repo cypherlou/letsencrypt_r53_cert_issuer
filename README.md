@@ -1,6 +1,6 @@
 # Let's Encrypt R53 Certificate Issuer
 
-Create certs using Let's encrypt for domains hosted on AWS R53.
+Create certs using Let's Encrypt for domains hosted on AWS R53.
 
 ## Install
 
@@ -28,3 +28,7 @@ Ensure that your Amazon User has the ability to create and remove text records o
 ```
 ./issue-cert.py glenndesmidt.com > glenndesmidt.com.pem
 ```
+
+
+## References
+[1] https://komuw.github.io/sewer/sewer-as-a-library
