@@ -31,8 +31,6 @@ import sewer.crypto
 import ic.cert
 import sys
 
-# - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - -
-
 
 def check_cert(domain, server, logger) -> None:
     cd = ic.cert.Cert(logger=logger, server=server)
@@ -93,16 +91,13 @@ def _save_to_file(name, value):
     f.close()
 
 
-# - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - -
 if __name__ == '__main__':
 
     opts = docopt.docopt(__doc__, version='cms-cli')
     logger = logging.getLogger(__name__)
     # Turn off detailed logging from core libraries
-    logging.getLogger('urllib3').setLevel(logging.WARNING)
-    logging.getLogger('botocore').setLevel(logging.WARNING)
-    logging.getLogger('boto3').setLevel(logging.WARNING)
-    logging.getLogger('nose').setLevel(logging.WARNING)
+    for logger_name in [ 'urllib3', 'botocore', 'boto3', 'nose']:
+        logging.getLogger(logger_name).setLevel(logging.WARNING)
 
     coloredlogs.install(level='DEBUG')
     coloredlogs.install(level='DEBUG', logger=logger)
