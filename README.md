@@ -27,8 +27,12 @@ Ensure that your Amazon User has the ability to create and remove text records o
 cms-cli.py
 
 Usage:
-  issue-cert.py issue <domain> [--account=<key-file>] [--email=<email>]
-  issue-cert.py renew <domain> [--account=<key-file>] [--email=<email>] [--check=<days> [--server=<server>]]
+Usage:
+Usage:
+  issue-cert.py issue <domain> <pem-file> [--account=<key-file>] [--email=<email>]
+  issue-cert.py issue <domain>... --directory=<directory> [--account=<key-file>] [--email=<email>]
+  issue-cert.py renew <domain> <pem-file> [--account=<key-file>] [--email=<email>] [--check=<days> [--server=<server>]]
+  issue-cert.py renew <domain>... --directory=<directory> [--account=<key-file>] [--email=<email>] [--check=<days> [--server=<server>]]
   issue-cert.py expiration <domain> [--server=<server>]
   issue-cert.py --help
 
@@ -42,15 +46,15 @@ Options:
 
 ## Create a certificate
 ```
-certificate.py issue glenndesmidt.com > /etc/application/certs/glenndesmidt.com.pem
+certificate.py issue glenndesmidt.com - > /tmp/working/glenndesmidt.com.pem
 ```
-Issue a new certificate for glenndesmidt.com and save the resulting PEM file to `/etc/application/certs/glenndesmidt.com.pem`
+Issue a new certificate for glenndesmidt.com and save the resulting PEM file to `/tmp/working/glenndesmidt.com.pem`
 
 ## Renew a certificate
 ```
-certificate.py renew --check 30 glenndesmidt.com > /etc/application/certs/glenndesmidt.com.pem
+certificate.py renew --check 30 glenndesmidt.com /etc/application/certs/glenndesmidt.com.pem
 ```
-Renew the certificate for glenndesmidt.com if it is due to expire in less than 30 days.
+Renew the certificate for glenndesmidt.com if it is due to expire in less than 30 days and save the PEM file to `/etc/application/certs/glenndesmidt.com.pem`.
 
 ## Check certificate renewal
 The `expiration` command will check when the certificate is going to expire and return the number of days.

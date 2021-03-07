@@ -62,6 +62,7 @@ class IssueCert( object ):
         self.key_type='rsa3072'
         self.email = ''
         self.new_account = True
+        self.error = True
 
     # -  -  -  -  -  -  -  -  -  -  -  -  -  -  -  -  -  -  -  -  -  -  -  -  -  -  -  -  -  -  -
     def issue_cert( self, domain:str ) -> None:
@@ -114,9 +115,10 @@ class IssueCert( object ):
             return
 
         self.log.info("requesting certificate for {}".format(self.naked_domain) )
-        self.pem = "{}\n{}".format( client.get_certificate(), self.certificate.to_pem() )
+        self.pem = "{}\n{}".format( client.get_certificate(), self.certificate.to_pem().decode() )
 
         self.log.info( "writing account credentials to {}".format( self.account_key_file) )
         self.account.write_pem( self.account_key_file )
         self.log.info( "writing certificate key to {}".format( self.certificate_key_file ) )
         self.certificate.write_pem( self.certificate_key_file )
+        self.error = False
