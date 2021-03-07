@@ -3,13 +3,45 @@ import sewer
 import sewer.dns_providers.route53
 import sewer.client
 import sewer.crypto
+import OpenSSL
+import ssl
+import socket
+import datetime
 
+# - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - -
+class Cert( object ):
+    def __init__( self, server:str, logger )->None:
+        self.log = logger
+        self.server = server
+        self.port = 443
+        self.expiration_date = None
+        self.expires_in = 0
+
+    def get_expiration( self, domain:str ):
+
+        if not self.server:
+            self.server = domain
+
+        context = ssl.create_default_context()
+        self.log.info( "connecting to {}:{}".format( self.server, self.port) )
+        with socket.create_connection((self.server, self.port)) as sock:
+            self.log.info( "getting certificate for {}".format( domain ) )
+            with context.wrap_socket(sock, server_hostname=domain) as sslsock:
+
+                der_cert = sslsock.getpeercert(True)
+                pem_cert = ssl.DER_cert_to_PEM_cert(der_cert)
+
+                x509 = OpenSSL.crypto.load_certificate(OpenSSL.crypto.FILETYPE_PEM, pem_cert)
+                self.expiration_date = datetime.datetime.strptime( x509.get_notAfter().decode(), '%Y%m%d%H%M%SZ' )
+                self.expires_in = (self.expiration_date - datetime.datetime.now()).days
+                self.log.info( "certificate expires on {}, {} days away".format( self.expiration_date, self.expires_in ) )
+
+    
 # - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - -
 class IssueCert( object ):
 
-    def __init__( self, options, logger ):
+    def __init__( self, logger ):
 
-        self.opts = options
         self.log = logger
         self.domain = None
         self.output_pem = False
