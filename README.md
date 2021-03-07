@@ -62,8 +62,11 @@ ehco "days to renewal: $(certificate.py expiration glenndesmidt.com)"
 If `certificate.py` fails to complete an operation it will exit with a status of 1, check `$?` if you are using a bash shell.
 
 ## `--server`
-If you are running `certificate.py` on the server that it hosting the certificates or are operating in an environment where multiple nodes might be involved, the
+If you are running `certificate.py` on the server that is hosting the certificates or are operating in an environment where multiple nodes might be involved, the
 `--server` option allows the host to be specified. This is also useful when dealing with firewalls that lack NAT traversal.
+```
+certificate.py renew --check 30 --server=localhost glenndesmidt.com > /etc/application/certs/glenndesmidt.com.pem
+```
 
 ## References
 [1] https://komuw.github.io/sewer/sewer-as-a-library
