@@ -4,8 +4,9 @@
 
 
 Usage:
-  issue-cert.py issue <domain> [--account=<key-file>] [--email=<email>] [--check=<days> [--server=<server>]]
-  issue-cert.py check <domain> [--server=<server>]
+  issue-cert.py issue <domain> [--account=<key-file>] [--email=<email>]
+  issue-cert.py renew <domain> [--account=<key-file>] [--email=<email>] [--check=<days> [--server=<server>]]
+  issue-cert.py expiration <domain> [--server=<server>]
   issue-cert.py --help
 
 Options:
@@ -32,6 +33,9 @@ import sys
 def check_cert( domain, server, logger) -> None:
     cd = ic.cert.Cert( logger=logger, server=server )
     cd.get_expiration(domain)
+    if cd.error:
+        sys.exit(1)
+        
     if cd.expiration_date:
         print( cd.expires_in )
     else:
@@ -39,7 +43,17 @@ def check_cert( domain, server, logger) -> None:
         sys.exit(1)
 
 
-def issue_cert(logger, domain:str, account:str='', check:int=0, server:str=''):
+def issue_cert(logger, domain:str, account:str=''):
+
+    issue = ic.cert.IssueCert( logger = logger )
+    if account:
+        issue.key_file = account
+
+    issue.issue_cert( domain = domain )
+    print( issue.pem )
+
+
+def renew_cert(logger, domain:str, account:str='', check:int=0, server:str=''):
 
     if check:
         cd = ic.cert.Cert( logger=logger, server=server )
@@ -50,13 +64,9 @@ def issue_cert(logger, domain:str, account:str='', check:int=0, server:str=''):
                 " {} day check - aborting".format( cd.expires_in, check ) )
             return
 
-    issue = ic.cert.IssueCert( logger = logger )
-    if account:
-        issue.key_file = account
+    issue_cert( logger, domain, account )
 
-    issue.issue_cert( domain = domain )
-    print( issue.pem )
-    
+
 # - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - -
 if __name__ == '__main__':
 
@@ -71,9 +81,14 @@ if __name__ == '__main__':
     coloredlogs.install(level='DEBUG')
     coloredlogs.install(level='DEBUG', logger=logger)
 
-    print( opts)
-    
     if opts.get( 'issue' ):
+        issue_cert(
+            logger=logger,
+            account=opts.get( '--account' ),
+            domain=opts.get( '<domain>' ),
+        )
+
+    if opts.get( 'renew' ):
         issue_cert(
             logger=logger,
             account=opts.get( '--account' ),
@@ -82,7 +97,7 @@ if __name__ == '__main__':
             server=opts.get('--server'),
         )
 
-    if opts.get( 'check' ):
+    if opts.get( 'expiration' ):
         check_cert(
             logger=logger,
             server=opts.get('--server'),

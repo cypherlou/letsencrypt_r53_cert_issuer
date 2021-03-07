@@ -16,6 +16,7 @@ class Cert( object ):
         self.port = 443
         self.expiration_date = None
         self.expires_in = 0
+        self.error = True
 
     def get_expiration( self, domain:str ):
 
@@ -24,18 +25,29 @@ class Cert( object ):
 
         context = ssl.create_default_context()
         self.log.info( "connecting to {}:{}".format( self.server, self.port) )
-        with socket.create_connection((self.server, self.port)) as sock:
-            self.log.info( "getting certificate for {}".format( domain ) )
-            with context.wrap_socket(sock, server_hostname=domain) as sslsock:
 
-                der_cert = sslsock.getpeercert(True)
-                pem_cert = ssl.DER_cert_to_PEM_cert(der_cert)
+        self.error = True
+        try:
+            sock = socket.create_connection((self.server, self.port))
+        except Exception as e:
+            self.log.error( e )
+            return 
 
-                x509 = OpenSSL.crypto.load_certificate(OpenSSL.crypto.FILETYPE_PEM, pem_cert)
-                self.expiration_date = datetime.datetime.strptime( x509.get_notAfter().decode(), '%Y%m%d%H%M%SZ' )
-                self.expires_in = (self.expiration_date - datetime.datetime.now()).days
-                self.log.info( "certificate expires on {}, {} days away".format( self.expiration_date, self.expires_in ) )
+        self.log.info( "getting certificate for {}".format( domain ) )
+        try:
+            ssl_socket = context.wrap_socket(sock, server_hostname=domain)
+        except Exception as e:
+            self.log.error( e )
+            return
+        
+        der_cert = ssl_socket.getpeercert(True)
+        pem_cert = ssl.DER_cert_to_PEM_cert(der_cert)
 
+        x509 = OpenSSL.crypto.load_certificate(OpenSSL.crypto.FILETYPE_PEM, pem_cert)
+        self.expiration_date = datetime.datetime.strptime( x509.get_notAfter().decode(), '%Y%m%d%H%M%SZ' )
+        self.expires_in = (self.expiration_date - datetime.datetime.now()).days
+        self.log.info( "certificate expires on {}, {} days away".format( self.expiration_date, self.expires_in ) )
+        self.error = False
     
 # - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - -
 class IssueCert( object ):
@@ -102,7 +114,7 @@ class IssueCert( object ):
             return
 
         self.log.info("requesting certificate for {}".format(self.naked_domain) )
-        self.pem = client.get_certificate()
+        self.pem = "{}\n{}".format( client.get_certificate(), self.certificate.to_pem() )
 
         self.log.info( "writing account credentials to {}".format( self.account_key_file) )
         self.account.write_pem( self.account_key_file )
