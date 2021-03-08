@@ -96,7 +96,7 @@ if __name__ == '__main__':
     opts = docopt.docopt(__doc__, version='cms-cli')
     logger = logging.getLogger(__name__)
     # Turn off detailed logging from core libraries
-    for logger_name in [ 'urllib3', 'botocore', 'boto3', 'nose']:
+    for logger_name in ['urllib3', 'botocore', 'boto3', 'nose']:
         logging.getLogger(logger_name).setLevel(logging.WARNING)
 
     coloredlogs.install(level='DEBUG')
