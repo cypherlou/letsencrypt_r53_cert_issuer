@@ -128,5 +128,5 @@ if __name__ == '__main__':
         check_cert(
             logger=logger,
             server=opts.get('--server'),
-            domain=opts.get('<domain>'),
+            domain=opts.get('<domain>')[0],
         )
