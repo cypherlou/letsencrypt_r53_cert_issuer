@@ -1,15 +1,14 @@
 #!/usr/bin/env python
 # -*- coding: utf-8 -*-
-"""cms-cli.py
-
+"""certificate.py
 
 Usage:
-  issue-cert.py issue <domain> <pem-file> [--account=<key-file>] [--email=<email>]
-  issue-cert.py issue <domain>... --directory=<directory> [--account=<key-file>] [--email=<email>]
-  issue-cert.py renew <domain> <pem-file> [--account=<key-file>] [--email=<email>] [--check=<days> [--server=<server>]]
-  issue-cert.py renew <domain>... --directory=<directory> [--account=<key-file>] [--email=<email>] [--check=<days> [--server=<server>]]
-  issue-cert.py expiration <domain> [--server=<server>]
-  issue-cert.py --help
+  certificate.py issue <domain> <pem-file> [--account=<key-file>] [--email=<email>]
+  certificate.py issue <domain>... --directory=<directory> [--account=<key-file>] [--email=<email>]
+  certificate.py renew <domain> <pem-file> [--account=<key-file>] [--email=<email>] [--check=<days> [--server=<server>]]
+  certificate.py renew <domain>... --directory=<directory> [--account=<key-file>] [--email=<email>] [--check=<days> [--server=<server>]]
+  certificate.py expiration <domain> [--server=<server>]
+  certificate.py --help
 
 Options:
   --help                                Display this.
@@ -45,8 +44,9 @@ def check_cert(domain, server, logger) -> None:
         sys.exit(1)
 
 
-def issue_cert(logger, domain: str, account: str = '',
-               directory: str = None, pem: str = None):
+def issue_cert(
+    logger, domain: str, account: str = "", directory: str = None, pem: str = None
+):
 
     issue = ic.cert.IssueCert(logger=logger)
     if account:
@@ -58,7 +58,7 @@ def issue_cert(logger, domain: str, account: str = '',
         return
 
     if pem:
-        if pem == '-':
+        if pem == "-":
             print(issue.pem)
         else:
             logger.info("saving certificate to {}".format(pem))
@@ -70,8 +70,15 @@ def issue_cert(logger, domain: str, account: str = '',
         _save_to_file(filename, issue.pem)
 
 
-def renew_cert(logger, domain: str, account: str = '', directory: str = None,
-               pem: str = None, check: int = 0, server: str = ''):
+def renew_cert(
+    logger,
+    domain: str,
+    account: str = "",
+    directory: str = None,
+    pem: str = None,
+    check: int = 0,
+    server: str = "",
+):
 
     if check:
         cd = ic.cert.Cert(logger=logger, server=server)
@@ -79,54 +86,55 @@ def renew_cert(logger, domain: str, account: str = '', directory: str = None,
         if cd.expires_in > check:
             logger.debug(
                 "cert valid for {} days which is greater than the"
-                " {} day check - aborting".format(cd.expires_in, check))
+                " {} day check - aborting".format(cd.expires_in, check)
+            )
             return
 
     issue_cert(logger, domain, account, directory, pem)
 
 
 def _save_to_file(name, value):
-    with open(name, 'w') as f:
+    with open(name, "w") as f:
         f.write(value)
     f.close()
 
 
-if __name__ == '__main__':
+if __name__ == "__main__":
 
-    opts = docopt.docopt(__doc__, version='cms-cli')
+    opts = docopt.docopt(__doc__, version="cms-cli")
     logger = logging.getLogger(__name__)
     # Turn off detailed logging from core libraries
-    for logger_name in ['urllib3', 'botocore', 'boto3', 'nose']:
+    for logger_name in ["urllib3", "botocore", "boto3", "nose"]:
         logging.getLogger(logger_name).setLevel(logging.WARNING)
 
-    coloredlogs.install(level='DEBUG')
-    coloredlogs.install(level='DEBUG', logger=logger)
+    coloredlogs.install(level="DEBUG")
+    coloredlogs.install(level="DEBUG", logger=logger)
 
-    if opts.get('issue'):
-        for domain in opts.get('<domain>'):
+    if opts.get("issue"):
+        for domain in opts.get("<domain>"):
             issue_cert(
                 logger=logger,
-                account=opts.get('--account'),
+                account=opts.get("--account"),
                 domain=domain,
-                directory=opts.get('--directory'),
-                pem=opts.get('<pem-file>'),
+                directory=opts.get("--directory"),
+                pem=opts.get("<pem-file>"),
             )
 
-    if opts.get('renew'):
-        for domain in opts.get('<domain>'):
+    if opts.get("renew"):
+        for domain in opts.get("<domain>"):
             renew_cert(
                 logger=logger,
-                account=opts.get('--account'),
+                account=opts.get("--account"),
                 domain=domain,
-                check=int(opts.get('--check')),
-                server=opts.get('--server'),
-                directory=opts.get('--directory'),
-                pem=opts.get('<pem-file>'),
+                check=int(opts.get("--check")),
+                server=opts.get("--server"),
+                directory=opts.get("--directory"),
+                pem=opts.get("<pem-file>"),
             )
 
-    if opts.get('expiration'):
+    if opts.get("expiration"):
         check_cert(
             logger=logger,
-            server=opts.get('--server'),
-            domain=opts.get('<domain>')[0],
+            server=opts.get("--server"),
+            domain=opts.get("<domain>")[0],
         )

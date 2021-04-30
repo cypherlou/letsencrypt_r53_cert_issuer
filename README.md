@@ -24,17 +24,17 @@ Ensure that your Amazon User has the ability to create and remove text records o
 
 ## Usage
 ```
-cms-cli.py
+certificate.py
 
 Usage:
 Usage:
 Usage:
-  issue-cert.py issue <domain> <pem-file> [--account=<key-file>] [--email=<email>]
-  issue-cert.py issue <domain>... --directory=<directory> [--account=<key-file>] [--email=<email>]
-  issue-cert.py renew <domain> <pem-file> [--account=<key-file>] [--email=<email>] [--check=<days> [--server=<server>]]
-  issue-cert.py renew <domain>... --directory=<directory> [--account=<key-file>] [--email=<email>] [--check=<days> [--server=<server>]]
-  issue-cert.py expiration <domain> [--server=<server>]
-  issue-cert.py --help
+  certificate.py issue <domain> <pem-file> [--account=<key-file>] [--email=<email>]
+  certificate.py issue <domain>... --directory=<directory> [--account=<key-file>] [--email=<email>]
+  certificate.py renew <domain> <pem-file> [--account=<key-file>] [--email=<email>] [--check=<days> [--server=<server>]]
+  certificate.py renew <domain>... --directory=<directory> [--account=<key-file>] [--email=<email>] [--check=<days> [--server=<server>]]
+  certificate.py expiration <domain> [--server=<server>]
+  certificate.py --help
 
 Options:
   --help                                Display this.

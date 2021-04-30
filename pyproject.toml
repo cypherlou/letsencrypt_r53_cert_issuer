@@ -1,0 +1,10 @@
+[tool.vulture]
+exclude = ["env/"]
+ignore_decorators = ["@app.route"]
+ignore_names = []
+make_whitelist = true
+min_confidence = 80
+paths = ["./"]
+sort_by_size = true
+verbose = false
+
